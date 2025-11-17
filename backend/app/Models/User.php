@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * User modell - Felhasználók kezelése
@@ -55,6 +56,46 @@ class User extends Authenticatable
             'password' => 'hashed',                   // Jelszó automatikus hashelése
             'role' => UserRoleEnum::class             // Role mező cast-olása UserRoleEnum-ra
         ];
+    }
+
+    /**
+     * Kapcsolat a rendelésekhez
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Kapcsolat a címekhez
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    /**
+     * Kapcsolat az értékelésekhez
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Kapcsolat a kosár tételekhez
+     */
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    /**
+     * Kapcsolat a kívánságlistákhoz
+     */
+    public function wishLists(): HasMany
+    {
+        return $this->hasMany(WishList::class);
     }
 
     /**
