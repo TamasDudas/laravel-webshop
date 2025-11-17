@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Product modell - Termékek kezelése
@@ -16,6 +17,7 @@ class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * Tömeges kitöltés engedélyezett mezők
@@ -88,5 +90,13 @@ class Product extends Model
     public function wishLists(): HasMany
     {
         return $this->hasMany(WishList::class);
+    }
+
+    /**
+     * Számított mező: átlagos értékelés (reviews alapján)
+     */
+    public function getAverageRatingAttribute(): ?float
+    {
+        return $this->reviews()->avg('rating');
     }
 }
