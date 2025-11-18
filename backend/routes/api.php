@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,3 +39,7 @@ Route::middleware('auth:sanctum')->apiResource('categories', CategoryController:
 // Review routes
 Route::apiResource('reviews', ReviewController::class)->except(['store', 'update', 'destroy']);
 Route::middleware('auth:sanctum')->apiResource('reviews', ReviewController::class)->only(['store', 'update', 'destroy']);
+
+// Order routes
+Route::apiResource('orders', OrderController::class)->except(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->apiResource('orders', OrderController::class)->only(['store']);

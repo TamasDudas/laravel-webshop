@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->string('guest_email')->nullable();
             $table->string('guest_name')->nullable();
             $table->string('guest_phone')->nullable();
-            $table->string('session_id');
+            $table->string('session_id')->nullable();
             $table->text('shipping_address');
             $table->text('billing_address');
             $table->timestamps();

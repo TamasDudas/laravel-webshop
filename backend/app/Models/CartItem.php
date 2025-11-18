@@ -19,7 +19,8 @@ class CartItem extends Model
      * Tömeges kitöltés engedélyezett mezők
      */
     protected $fillable = [
-        'user_id',   // Felhasználó ID
+        'user_id',   // Felhasználó ID (nullable)
+        'session_id', // Session ID vendég kosárhoz (nullable)
         'product_id', // Termék ID
         'quantity',   // Mennyiség
     ];
@@ -41,7 +42,7 @@ class CartItem extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->nullable();
     }
 
     /**
