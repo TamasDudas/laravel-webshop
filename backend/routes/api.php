@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartItemController;
+use App\Http\Controllers\WishListController;
+use App\Http\Controllers\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,3 +46,12 @@ Route::middleware('auth:sanctum')->apiResource('reviews', ReviewController::clas
 // Order routes
 Route::apiResource('orders', OrderController::class)->except(['store', 'update', 'destroy']);
 Route::middleware('auth:sanctum')->apiResource('orders', OrderController::class)->only(['store']);
+
+// Cart routes
+Route::apiResource('cart-items', CartItemController::class);
+
+// Wishlist routes
+Route::middleware('auth:sanctum')->apiResource('wish-lists', WishListController::class);
+
+// Address routes
+Route::middleware('auth:sanctum')->apiResource('addresses', AddressController::class);
