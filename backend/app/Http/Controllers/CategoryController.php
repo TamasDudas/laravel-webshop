@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -12,7 +15,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::all();
+
+        return CategoryResource::collection($categories);
     }
 
     /**
@@ -28,7 +33,33 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'parent_id' => 'nullable|integer',
+                'name' => 'required|string|min:5|max:255',
+            ]);
+
+            $slug = Str::slug($validated['name']);
+            $counter = 1;
+
+            while (Category::where('slug', $slug)->exists()) {
+                $slug = $slug .'-'. $counter;
+                $counter++;
+            }
+
+            $category = Category::create([
+                'parent_id' => $validated['parent_id'],
+                'name' => $validated['name'],
+                'slug' => $slug
+            ]);
+
+            return new CategoryResource($category);
+
+        } catch (\Exception $e) {
+            Log::error('Category creation failed: '. $e->getMessage());
+            return response()->json(['error' => 'Nem siokerült létrehozni a kategóriát'], 500);
+
+        }
     }
 
     /**
@@ -52,7 +83,31 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'parent_id' => 'nullable|integer',
+                'name' => 'required|string|min:5|max:255',
+            ]);
+
+            if (isset($validated['name']) && $validated['name'] !== $category->name) {
+                $slug = Str::slug($validated['name']);
+                $counter = 1;
+                while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+                    $slug = $slug . '-' . $counter;
+                    $counter++;
+                }
+                $validated['slug'] = $slug;
+            }
+
+            $category->update($validated);
+
+            return new CategoryResource($category);
+
+        } catch (\Exception $e) {
+            Log::error('Category creation failed: '. $e->getMessage());
+            return response()->json(['error' => 'Nem siokerült létrehozni a kategóriát'], 500);
+
+        }
     }
 
     /**
@@ -60,6 +115,13 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        try {
+            $category->delete();
+
+            return response()->json(['message' => 'Kategória törölve'], 200);
+        } catch (\Exception $e) {
+            Log::error('Category deletion failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Nem sikerült törölni a kategóriát'], 500);
+        }
     }
 }

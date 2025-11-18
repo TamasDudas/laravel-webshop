@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,4 +28,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 // Product routes
-Route::apiResource('products', ProductController::class);
+Route::apiResource('products', ProductController::class)->except(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->apiResource('products', ProductController::class)->only(['store', 'update', 'destroy']);
+
+// Category routes
+Route::apiResource('categories', CategoryController::class)->except(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->apiResource('categories', CategoryController::class)->only(['store', 'update', 'destroy']);
+
+// Review routes
+Route::apiResource('reviews', ReviewController::class)->except(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->apiResource('reviews', ReviewController::class)->only(['store', 'update', 'destroy']);
