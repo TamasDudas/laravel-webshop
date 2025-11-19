@@ -1,9 +1,7 @@
+import Home from './pages/public/Home';
+
 function App() {
-	return (
-		<>
-			<h1 className="text-gray-500">Webshop</h1>
-		</>
-	);
+	return <div className='className="min-h-screen bg-gray-50"'></div>;
 }
 
 export default App;
