@@ -16,27 +16,9 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => $this->whenLoaded('user', fn () => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-            ]),
-            'shippingMethod' => $this->whenLoaded('shippingMethod', fn () => [
-                'id' => $this->shippingMethod->id,
-                'name' => $this->shippingMethod->name,
-                'estimated_days' => $this->shippingMethod->estimated_days,
-                'price' => $this->shippingMethod->price
-            ]),
-            'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
-                'id' => $item->id,
-                'product' => $item->product ? [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'price' => $item->product->price,
-                ] : null,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'total_price' => $item->total_price,
-            ])),
+            'user' => $this->whenLoaded('user', fn () => new UserResource($this->user)),
+            'shippingMethod' => $this->whenLoaded('shippingMethod', fn () => new ShippingMethodResource($this->shippingMethod)),
+            'items' => $this->whenLoaded('items', fn () => OrderItemResource::collection($this->items)),
             'status' => $this->status,
             'total_amount' => $this->total_amount,
             'guest_name' => $this->guest_name,
