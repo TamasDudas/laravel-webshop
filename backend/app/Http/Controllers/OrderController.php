@@ -15,7 +15,13 @@ class OrderController extends Controller
     public function index()
     {
         if (auth()->check()) {
-            $orders = Order::where('user_id', auth()->id())->with(['user', 'shippingMethod', 'items.product'])->get();
+            if (auth()->user()->isAdmin()) {
+                // Admin lát minden rendelést
+                $orders = Order::with(['user', 'shippingMethod', 'items.product'])->get();
+            } else {
+                // User csak saját rendeléseit látja
+                $orders = Order::where('user_id', auth()->id())->with(['user', 'shippingMethod', 'items.product'])->get();
+            }
         } else {
             // Guest orders - session_id alapján, de ez példa, igazából nem publikus
             return response()->json(['error' => 'Hitelesítés szükséges'], 401);
@@ -91,7 +97,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // Csak saját rendelés vagy admin
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             return response()->json(['error' => 'Nincs jogosultságod megnézni ezt a rendelést'], 403);
         }
 
@@ -111,8 +117,8 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        // Csak saját rendelés
-        if ($order->user_id !== auth()->id()) {
+        // Csak saját rendelés vagy admin
+        if ($order->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             return response()->json(['error' => 'Csak a saját rendelésedet módosíthatod'], 403);
         }
 
@@ -137,8 +143,8 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        // Csak saját rendelés és csak bizonyos státuszban (pl. pending)
-        if ($order->user_id !== auth()->id() || !in_array($order->status, ['pending', 'cancelled'])) {
+        // Admin bármelyiket törölheti, user csak sajátját és csak bizonyos státuszban
+        if (!auth()->user()->isAdmin() && ($order->user_id !== auth()->id() || !in_array($order->status, ['pending', 'cancelled']))) {
             return response()->json(['error' => 'Nem törölheted ezt a rendelést'], 403);
         }
 

@@ -67,7 +67,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        return new CategoryResource($category->load(['parent', 'children', 'products']));
     }
 
     /**
@@ -83,6 +83,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
+        // Csak admin módosíthatja a kategóriákat
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['error' => 'Nincs jogosultságod módosítani a kategóriákat'], 403);
+        }
         try {
             $validated = $request->validate([
                 'parent_id' => 'nullable|integer',
@@ -115,6 +119,11 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        // Csak admin törölheti a kategóriákat
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['error' => 'Nincs jogosultságod törölni a kategóriákat'], 403);
+        }
+
         try {
             $category->delete();
 

@@ -64,7 +64,7 @@ class ReviewController extends Controller
      */
     public function show(Review $review)
     {
-        //
+        return new ReviewResource($review->load(['user', 'product']));
     }
 
     /**
@@ -80,8 +80,8 @@ class ReviewController extends Controller
      */
     public function update(Request $request, Review $review)
     {
-        // Csak saját review módosítható
-        if ($review->user_id !== auth()->id()) {
+        // Csak saját review vagy admin módosítható
+        if ($review->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             return response()->json(['error' => 'Csak a saját értékelésedet módosíthatod'], 403);
         }
 
@@ -108,8 +108,8 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review)
     {
-        // Csak saját review törölhető
-        if ($review->user_id !== auth()->id()) {
+        // Csak saját review vagy admin törölhető
+        if ($review->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             return response()->json(['error' => 'Csak a saját értékelésedet törölheted'], 403);
         }
 
