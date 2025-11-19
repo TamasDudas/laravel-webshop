@@ -3,6 +3,7 @@ import MainLayouts from './layouts/MainLayouts';
 import Home from './pages/public/Home';
 import Login from './pages/public/Login';
 import Register from './pages/public/Register';
+import Product from './pages/public/Product';
 
 const router = createBrowserRouter([
 	{
@@ -35,3 +36,4 @@ const router = createBrowserRouter([
 		],
 	},
 ]);
+export default router;
