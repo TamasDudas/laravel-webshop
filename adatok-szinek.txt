@@ -1,0 +1,7 @@
+{
+"email":"test@example.com",
+"password":"password"
+}
+
+dark:bg-sky-950
+medium-light:bg-sky-900

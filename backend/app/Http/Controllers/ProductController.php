@@ -82,7 +82,7 @@ class ProductController extends Controller
                 'stock' => 'required|integer|min:0',
                 'is_active' => 'boolean',
                 'images' => 'array', // Tömb képekből
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Minden kép validáció
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif,avif|max:2048', // Minden kép validáció
             ]);
 
             // Slug generálás a név alapján (egyedi)
@@ -163,7 +163,7 @@ class ProductController extends Controller
                 'stock' => 'sometimes|integer|min:0',
                 'is_active' => 'sometimes|boolean',
                 'images' => 'array', // Új képek hozzáadása
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif,avif|max:2048',
             ]);
 
             // Ha name változott, új slug generálás (egyedi)

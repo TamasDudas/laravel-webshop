@@ -2,6 +2,9 @@ import { createBrowserRouter } from 'react-router-dom';
 import MainLayouts from './layouts/MainLayouts';
 import Home from './pages/public/Home';
 import Login from './pages/public/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import CreateProduct from './pages/private/CreateProduct';
+import UpdateProduct from './pages/private/UpdateProduct';
 import Register from './pages/public/Register';
 import Product from './pages/public/Product';
 
@@ -32,6 +35,19 @@ const router = createBrowserRouter([
 			//Csak bejelentkezett felhasználó
 			{
 				path: '/create-product',
+				element: (
+					<ProtectedRoute>
+						<CreateProduct />
+					</ProtectedRoute>
+				),
+			},
+			{
+				path: '/update-product',
+				element: (
+					<ProtectedRoute>
+						<UpdateProduct />
+					</ProtectedRoute>
+				),
 			},
 		],
 	},
