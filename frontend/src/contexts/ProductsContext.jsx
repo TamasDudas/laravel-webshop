@@ -31,7 +31,6 @@ export default function ProductsProvider({ children }) {
 		try {
 			setLoading(true);
 			const fetchData = await api.get('/products');
-			console.log(fetchData.data);
 			setProduct(fetchData.data.data);
 		} catch (error) {
 			console.error('Hiba a termékek lekérdezésekor:', error);
