@@ -15,8 +15,8 @@ export default function MainLayouts() {
 	}
 
 	return (
-		<div className="min-h-screen bg-sky-950">
-			<header className="bg-sky-900 shadow-sm">
+		<div className="min-h-screen bg-slate-950">
+			<header className="bg-slate-800 shadow-sm">
 				{isAuthenticated ? <PrivateNavbar /> : <PublicNavbar />}
 			</header>
 			<main className="container mx-auto px-4 py-8">

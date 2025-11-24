@@ -76,13 +76,13 @@ class ProductController extends Controller
         try {
             $validated = $request->validate([
                 'category_id' => 'required|exists:categories,id',
-                'name' => 'required|string|min:5|max:255',
+                'name' => 'required|string|min:2|max:255',
                 'description' => 'required|string',
                 'price' => 'required|integer|min:0',
                 'stock' => 'required|integer|min:0',
                 'is_active' => 'boolean',
-                'images' => 'array', // Tömb képekből
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif,avif|max:2048', // Minden kép validáció
+                'images' => 'nullable|array', // Tömb képekből, opcionális
+                'images.*' => 'mimes:jpeg,png,jpg,gif,avif|max:2048', // Minden kép validáció
             ]);
 
             // Slug generálás a név alapján (egyedi)
@@ -109,8 +109,14 @@ class ProductController extends Controller
             if ($request->hasFile('images')) {
                 // Minden feltöltött képfájlt feldolgozunk, mivel több kép van így tömbben "érkeznek"
                 foreach ($request->file('images') as $index => $file) {
+                    // Eredeti név és kiterjesztés
+                    $originalName = $file->getClientOriginalName();
+                    $extension = $file->getClientOriginalExtension();
+                    $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+                    // Egyedi név generálás: eredeti név + random string
+                    $uniqueName = $baseName . '_' . Str::random(10) . '.' . $extension;
                     // Kép mentése a storage/app/public/products/ mappába egyedi névvel
-                    $path = $file->store('products', 'public');
+                    $path = $file->storeAs('products', $uniqueName, 'public');
                     // ProductImage rekord létrehozása az adatbázisban
                     ProductImage::create([
                         'product_id' => $product->id,  // Kapcsolódás a termékhez
