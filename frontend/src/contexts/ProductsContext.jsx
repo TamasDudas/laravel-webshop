@@ -23,10 +23,6 @@ export default function ProductsProvider({ children }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 
-	useEffect(() => {
-		fetchProduct();
-	}, []);
-
 	async function fetchProduct() {
 		try {
 			setLoading(true);

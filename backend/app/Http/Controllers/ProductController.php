@@ -163,7 +163,7 @@ class ProductController extends Controller
         try {
             $validated = $request->validate([
                 'category_id' => 'sometimes|exists:categories,id', // Opcionális, csak ha változik
-                'name' => 'sometimes|string|min:5|max:255',
+                'name' => 'sometimes|string|min:2|max:255',
                 'description' => 'sometimes|string',
                 'price' => 'sometimes|integer|min:0',
                 'stock' => 'sometimes|integer|min:0',

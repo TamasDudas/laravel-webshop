@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useCategories } from '../../contexts/CategoriesContext';
 
 import { useImageHandler } from '../../hooks/useImageHandler'; // Képkezelő hook importálása
+import { useProduct } from '../../contexts/ProductContext';
 
 export default function ProductForm() {
 	const { categories } = useCategories();
+	const { handleCreateProduct } = useProduct();
 
 	// Képkezelés külön hook-kal
 	const { images, addImages, removeImage, clearImages, appendImagesToFormData } = useImageHandler();
@@ -50,6 +52,8 @@ export default function ProductForm() {
 		const result = await handleCreateProduct(formDataToSend);
 		if (result.success) {
 			alert('Termék sikeresen létrehozva!');
+			// Esemény küldése a lista frissítéséhez
+
 			// Form és képek resetelése
 			setFormData({
 				category_id: '',

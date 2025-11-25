@@ -1,8 +1,13 @@
 import { useProducts } from '../../contexts/ProductsContext';
 import { Img } from 'react-image'; // react-image importálása
+import { useEffect } from 'react';
 
 export default function Home() {
-	const { products, loading, error } = useProducts();
+	const { products, loading, error, fetchProduct } = useProducts();
+
+	useEffect(() => {
+		fetchProduct(); // Termékek betöltése komponens mountkor
+	}, []);
 
 	if (loading) {
 		return <p>Betöltés...</p>;
