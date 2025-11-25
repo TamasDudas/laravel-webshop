@@ -1,12 +1,14 @@
 import { useProducts } from '../../contexts/ProductsContext';
-import { Img } from 'react-image'; // react-image importálása
+
 import { useEffect } from 'react';
+import ProductsList from '../../components/ProductsList';
 
 export default function Home() {
-	const { products, loading, error, fetchProduct } = useProducts();
+	const { products, loading, error, fetchProduct, lastPage, currentPage, setCurrentPage } =
+		useProducts();
 
 	useEffect(() => {
-		fetchProduct(); // Termékek betöltése komponens mountkor
+		fetchProduct(currentPage); // Termékek betöltése komponens mountkor
 	}, []);
 
 	if (loading) {
@@ -17,33 +19,48 @@ export default function Home() {
 		return <p>Hiba: {error}</p>;
 	}
 
+	const prevPage = () => {
+		if (currentPage > 1) {
+			const newPage = currentPage - 1;
+			setCurrentPage(newPage);
+			fetchProduct(newPage);
+		}
+	};
+
+	const nextPage = () => {
+		if (currentPage < lastPage) {
+			const newPage = currentPage + 1;
+			setCurrentPage(newPage);
+			fetchProduct(newPage);
+		}
+	};
+
 	return (
 		<div className="container mx-auto p-4">
 			<h1 className="text-3xl text-slate-500 font-bold mb-4">Termékek</h1>
-			<div className="grid grid-cols-1 py-3 md:grid-cols-4 gap-4">
-				{products &&
-					products.map((product) => (
-						<div key={product.id} className=" rounded-xl p-4 shadow-xl">
-							{/* Képek megjelenítése react-image Img komponenssel */}
-							{product.images && product.images.length > 0 && (
-								<Img
-									src={`http://localhost:8000/storage/${product.images[0].image_path}`}
-									alt={product.name}
-									className="w-full h-48  object-cover rounded-lg border border-white"
-									loader={
-										<div className="w-full bg-gray-200 animate-pulse flex items-center justify-center">Betöltés...</div>
-									} // Placeholder betöltés közben
-									unloader={
-										<div className="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-500">
-											Hiba a kép betöltésében
-										</div>
-									} // Fallback hiba esetén
-								/>
-							)}
-							<h2 className=" text-slate-400 text-2xl font-medium mt-2">{product.name}</h2>
-						</div>
-					))}
-			</div>
+			<ProductsList products={products} />
+
+			{lastPage > 1 && (
+				<nav className="mt-4 flex justify-center space-x-4">
+					<button
+						onClick={prevPage}
+						disabled={currentPage === 1}
+						className="px-4 py-2 bg-slate-800 text-white rounded disabled:bg-gray-300"
+					>
+						Előző
+					</button>
+					<span className="px-4 py-2 text-slate-400">
+						{currentPage} / {lastPage}
+					</span>
+					<button
+						onClick={nextPage}
+						disabled={currentPage === lastPage}
+						className="px-4 py-2 bg-slate-800 text-white rounded disabled:bg-gray-300"
+					>
+						Következő
+					</button>
+				</nav>
+			)}
 		</div>
 	);
 }

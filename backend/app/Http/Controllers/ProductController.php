@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         // Lekérdezzük a query paramétereket (alapértelmezett értékekkel)
-        $pagination = $request->query('per_page', 9); // Hány termék oldalanként (alap 9)
+        $pagination = $request->query('per_page', 8); // Hány termék oldalanként (alap 9)
 
         $search = $request->query('search', ''); // Keresési szöveg (név vagy leírás)
 
