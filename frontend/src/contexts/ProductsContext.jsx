@@ -44,7 +44,6 @@ export default function ProductsProvider({ children }) {
 			setTotal(response.total);
 			setLoading(false);
 		} catch (error) {
-			console.error('Hiba a termékek lekérdezésekor:', error);
 			setError(error.response?.data?.message || 'Nem sikerült betölteni a termékeket');
 		} finally {
 			setLoading(false);

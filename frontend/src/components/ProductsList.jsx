@@ -1,5 +1,6 @@
 import React from 'react';
 import { Img } from 'react-image'; // react-image importálása
+import { Link } from 'react-router-dom';
 
 export default function ProductsList({ products, searchTerm, onResetSearch }) {
 	// if (products.length === 0) {
@@ -21,7 +22,7 @@ export default function ProductsList({ products, searchTerm, onResetSearch }) {
 		<div className="grid grid-cols-1 py-3 md:grid-cols-4 gap-4">
 			{products &&
 				products.map((product) => (
-					<div key={product.id} className=" rounded-xl p-4 shadow-xl">
+					<Link key={product.id} to={`/products/${product.id}`} className=" rounded-xl p-4 shadow-xl">
 						{/* Képek megjelenítése react-image Img komponenssel */}
 						{product.images && product.images.length > 0 && (
 							<Img
@@ -39,7 +40,7 @@ export default function ProductsList({ products, searchTerm, onResetSearch }) {
 							/>
 						)}
 						<h2 className=" text-slate-400 text-2xl font-medium mt-2">{product.name}</h2>
-					</div>
+					</Link>
 				))}
 		</div>
 	);

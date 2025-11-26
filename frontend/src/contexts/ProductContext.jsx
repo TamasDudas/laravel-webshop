@@ -5,6 +5,7 @@ const ProductContext = createContext({
 	product: null,
 	loading: false,
 	error: null,
+	fetchProduct: async () => {},
 	handleCreateProduct: async () => {},
 });
 
@@ -20,6 +21,22 @@ export default function ProductProvider({ children }) {
 	const [product, setProduct] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
+
+	const fetchProduct = async (id) => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			const responseData = await api.get(`/products/${id}`);
+			const response = responseData.data.data; // Egy termék esetén nested data
+
+			setProduct(response);
+		} catch (error) {
+			setError(error.response?.data?.message || 'Nem sikerült betölteni a terméket');
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const handleCreateProduct = async (productData) => {
 		try {
@@ -39,7 +56,7 @@ export default function ProductProvider({ children }) {
 	};
 
 	return (
-		<ProductContext.Provider value={{ product, loading, error, handleCreateProduct }}>
+		<ProductContext.Provider value={{ product, loading, error, fetchProduct, handleCreateProduct }}>
 			{children}
 		</ProductContext.Provider>
 	);
