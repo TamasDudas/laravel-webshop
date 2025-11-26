@@ -47,8 +47,8 @@ export function useImageHandler() {
 	 */
 	const appendImagesToFormData = (formData) => {
 		if (images.length > 0) {
-			images.forEach((image) => {
-				formData.append('images[]', image);
+			images.forEach((image, index) => {
+				formData.append(`images[${index}]`, image);
 			});
 		}
 	};

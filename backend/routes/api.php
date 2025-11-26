@@ -33,19 +33,25 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 // Product routes
 Route::apiResource('products', ProductController::class)->except(['store', 'update', 'destroy']);
-Route::middleware('auth:sanctum')->apiResource('products', ProductController::class)->only(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->post('products', [ProductController::class, 'store']);
+Route::middleware('auth:sanctum')->post('products/{product}/update', [ProductController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('products/{product}', [ProductController::class, 'destroy']);
 
 // Category routes
 Route::apiResource('categories', CategoryController::class)->except(['store', 'update', 'destroy']);
-Route::middleware('auth:sanctum')->apiResource('categories', CategoryController::class)->only(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->post('categories', [CategoryController::class, 'store']);
+Route::middleware('auth:sanctum')->post('categories/{category}/update', [CategoryController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('categories/{category}', [CategoryController::class, 'destroy']);
 
 // Review routes
 Route::apiResource('reviews', ReviewController::class)->except(['store', 'update', 'destroy']);
-Route::middleware('auth:sanctum')->apiResource('reviews', ReviewController::class)->only(['store', 'update', 'destroy']);
+Route::middleware('auth:sanctum')->post('reviews', [ReviewController::class, 'store']);
+Route::middleware('auth:sanctum')->post('reviews/{review}/update', [ReviewController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('reviews/{review}', [ReviewController::class, 'destroy']);
 
 // Order routes
 Route::apiResource('orders', OrderController::class)->except(['store', 'update', 'destroy']);
-Route::middleware('auth:sanctum')->apiResource('orders', OrderController::class)->only(['store']);
+Route::middleware('auth:sanctum')->post('orders', [OrderController::class, 'store']);
 
 // Cart routes
 Route::apiResource('cart-items', CartItemController::class);

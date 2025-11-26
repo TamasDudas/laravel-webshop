@@ -78,12 +78,19 @@ class ProductController extends Controller
                 'category_id' => 'required|exists:categories,id',
                 'name' => 'required|string|min:2|max:255',
                 'description' => 'required|string',
-                'price' => 'required|integer|min:0',
-                'stock' => 'required|integer|min:0',
-                'is_active' => 'boolean',
+                'price' => 'required|numeric|min:0',
+                'stock' => 'required|numeric|min:0',
+                'is_active' => 'in:0,1,true,false',
                 'images' => 'nullable|array', // Tömb képekből, opcionális
                 'images.*' => 'mimes:jpeg,png,jpg,gif,avif|max:2048', // Minden kép validáció
             ]);
+
+            // Típuskonverziók FormData-ból érkező stringekhez
+            $validated['price'] = (int) $validated['price'];
+            $validated['stock'] = (int) $validated['stock'];
+            if (isset($validated['is_active'])) {
+                $validated['is_active'] = filter_var($validated['is_active'], FILTER_VALIDATE_BOOLEAN);
+            }
 
             // Slug generálás a név alapján (egyedi)
             // Ha már létezik ugyanaz a slug, counter-rel bővítjük (pl. "ora" -> "ora-1" -> "ora-2")
@@ -160,55 +167,61 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        try {
-            $validated = $request->validate([
-                'category_id' => 'sometimes|exists:categories,id', // Opcionális, csak ha változik
-                'name' => 'sometimes|string|min:2|max:255',
-                'description' => 'sometimes|string',
-                'price' => 'sometimes|integer|min:0',
-                'stock' => 'sometimes|integer|min:0',
-                'is_active' => 'sometimes|boolean',
-                'images' => 'array', // Új képek hozzáadása
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif,avif|max:2048',
-            ]);
+        $validated = $request->validate([
+            'category_id' => 'sometimes|exists:categories,id',
+            'name' => 'sometimes|string|min:2|max:255',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric|min:0',
+            'stock' => 'sometimes|numeric|min:0',
+            'is_active' => 'sometimes|in:0,1,true,false',
+            'images' => 'sometimes|array',
+            'images.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
+        ]);
 
-            // Ha name változott, új slug generálás (egyedi)
-            // Ha már létezik ugyanaz a slug, counter-rel bővítjük (pl. "ora" -> "ora-1" -> "ora-2")
-            if (isset($validated['name']) && $validated['name'] !== $product->name) {
-                $slug = Str::slug($validated['name']);
-                $originalSlug = $slug;
-                $counter = 1;
-                while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-                    $slug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
-                $validated['slug'] = $slug;
-            }
-
-            $product->update($validated);
-
-            // Új képek hozzáadása, ha vannak
-            if ($request->hasFile('images')) {
-                $currentOrder = $product->images()->max('order') ?? -1; // Utolsó order
-                // Minden új képfájlt feldolgozunk és hozzáadunk a meglévőkhöz
-                foreach ($request->file('images') as $index => $file) {
-                    // Kép mentése a storage/app/public/products/ mappába egyedi névvel
-                    $path = $file->store('products', 'public');
-                    // ProductImage rekord létrehozása az adatbázisban
-                    ProductImage::create([
-                        'product_id' => $product->id,  // Kapcsolódás a termékhez
-                        'image_path' => $path,         // Elérési út a storage-ban
-                        'is_primary' => false,         // Új képek alapértelmezetten nem elsődlegesek
-                        'order' => $currentOrder + $index + 1, // Sorrend folytatása (pl. ha volt 2 kép, ez 3, 4...)
-                    ]);
-                }
-            }
-
-            return new ProductResource($product->load(['category', 'images']));
-        } catch (\Exception $e) {
-            Log::error('Product update failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Nem sikerült frissíteni a terméket'], 500);
+        // Típuskonverziók
+        if (isset($validated['price'])) {
+            $validated['price'] = (int) $validated['price'];
         }
+        if (isset($validated['stock'])) {
+            $validated['stock'] = (int) $validated['stock'];
+        }
+        if (isset($validated['is_active'])) {
+            $validated['is_active'] = filter_var($validated['is_active'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Slug generálás név változás esetén
+        if (isset($validated['name']) && $validated['name'] !== $product->name) {
+            $slug = Str::slug($validated['name']);
+            $originalSlug = $slug;
+            $counter = 1;
+            while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+            $validated['slug'] = $slug;
+        }
+
+        $product->update($validated);
+
+        // Képek feltöltése
+        if ($request->hasFile('images')) {
+            // Régi főkép eltávolítása
+            $product->images()->where('is_primary', true)->update(['is_primary' => false]);
+
+            $currentOrder = $product->images()->max('order') ?? -1;
+
+            foreach ($request->file('images') as $index => $file) {
+                $path = $file->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $path,
+                    'is_primary' => $index === 0,
+                    'order' => $currentOrder + $index + 1,
+                ]);
+            }
+        }
+
+        return new ProductResource($product->fresh(['category', 'images' => fn ($q) => $q->ordered()]));
     }
 
     /**

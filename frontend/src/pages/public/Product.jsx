@@ -1,14 +1,24 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { useProduct } from '../../contexts/ProductContext';
 import { Img } from 'react-image';
 
 export default function Product() {
 	const { id } = useParams();
 	const { product, loading, fetchProduct, error } = useProduct();
+	const hasFetched = useRef(false);
 
 	useEffect(() => {
-		fetchProduct(id);
+		// Csak akkor töltjük be, ha nincs termék vagy más termék van, és még nem töltöttük be
+		if ((!product || product.id !== parseInt(id)) && !hasFetched.current) {
+			hasFetched.current = true;
+			fetchProduct(id);
+		}
+
+		// Reset amikor id változik
+		return () => {
+			hasFetched.current = false;
+		};
 	}, [id]);
 
 	if (loading) {
@@ -31,7 +41,9 @@ export default function Product() {
 					<div className="md:w-1/2">
 						{product.images && product.images.length > 0 && (
 							<Img
-								src={`http://localhost:8000/storage/${product.images[0].image_path}`}
+								src={`http://localhost:8000/storage/${
+									product.images.find((img) => img.is_primary)?.image_path || product.images[0].image_path
+								}`}
 								alt={product.name}
 								className="w-full h-96 object-cover rounded-lg border border-white"
 								loader={
@@ -58,6 +70,20 @@ export default function Product() {
 						<button className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors">
 							Kosárba rakom
 						</button>
+						<div className="mt-6">
+							<Link
+								to={`/update-product/${product.id}`}
+								className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors"
+							>
+								Szerkesztés
+							</Link>
+							<Link
+								// to={`/delete-product/${product.id}`}
+								className="px-4 py-2 bg-red-950 text-white rounded hover:bg-slate-700 transition-colors"
+							>
+								Törlés
+							</Link>
+						</div>
 					</div>
 				</div>
 			</div>
