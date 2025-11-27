@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
-import api from '../api';
+import { productService } from '../services/crudService';
 
 // Hibakezelés kiemelése (DRY principle)
 function extractErrorMessage(error) {
@@ -25,6 +25,7 @@ const ProductContext = createContext({
 	fetchProduct: async () => {},
 	handleCreateProduct: async () => {},
 	handleUpdateProduct: async () => {},
+	handleDeleteProduct: async () => {},
 });
 
 export function useProduct() {
@@ -44,11 +45,8 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-
-			const responseData = await api.get(`/products/${id}`);
-			const response = responseData.data.data; // Egy termék esetén nested data
-
-			setProduct(response);
+			const product = await productService.fetchOne(id);
+			setProduct(product);
 		} catch (error) {
 			setError(error.response?.data?.message || 'Nem sikerült betölteni a terméket');
 		} finally {
@@ -60,8 +58,7 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			const response = await api.post('/products', productData);
-			const newProduct = response.data;
+			const newProduct = await productService.create(productData);
 			setProduct(newProduct);
 			return { success: true, data: newProduct };
 		} catch (error) {
@@ -77,10 +74,7 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-
-			// Egyszerűen POST /products/{id}/update - mint a create, csak más endpoint
-			const responseData = await api.post(`/products/${id}/update`, productData);
-			const updatedProduct = responseData.data.data;
+			const updatedProduct = await productService.update(id, productData);
 			setProduct(updatedProduct);
 			return { success: true, data: updatedProduct };
 		} catch (error) {
@@ -92,9 +86,32 @@ export default function ProductProvider({ children }) {
 		}
 	}, []);
 
+	const handleDeleteProduct = useCallback(async (id) => {
+		try {
+			setLoading(true);
+			setError(null);
+			await productService.delete(id);
+			setProduct(null); // Sikeres törlés után ürítjük a state-et
+			return { success: true };
+		} catch (error) {
+			const errorMessage = extractErrorMessage(error);
+			setError(errorMessage);
+			return { success: false, error: errorMessage };
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 	return (
 		<ProductContext.Provider
-			value={{ product, loading, error, fetchProduct, handleCreateProduct, handleUpdateProduct }}
+			value={{
+				product,
+				loading,
+				error,
+				fetchProduct,
+				handleCreateProduct,
+				handleUpdateProduct,
+				handleDeleteProduct,
+			}}
 		>
 			{children}
 		</ProductContext.Provider>

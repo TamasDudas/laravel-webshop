@@ -1,12 +1,17 @@
-import React, { useEffect, useRef } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useProduct } from '../../contexts/ProductContext';
 import { Img } from 'react-image';
+import { useAuth } from '../../contexts/AuthContext';
+import ConfirmModal from '../../components/ConfirmModal';
 
 export default function Product() {
 	const { id } = useParams();
-	const { product, loading, fetchProduct, error } = useProduct();
+	const { product, loading, fetchProduct, error, handleDeleteProduct } = useProduct();
+	const [showModal, setShowModal] = useState(false);
 	const hasFetched = useRef(false);
+	const { isAuthenticated } = useAuth();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		// Csak akkor töltjük be, ha nincs termék vagy más termék van, és még nem töltöttük be
@@ -32,6 +37,15 @@ export default function Product() {
 	if (!product) {
 		return <p>Nincs termék</p>;
 	}
+
+	const deleteProduct = async () => {
+		const result = await handleDeleteProduct(id);
+		if (result.success) {
+			navigate('/');
+		} else {
+			alert(result.error);
+		}
+	};
 
 	return (
 		<div className="container mx-auto p-4">
@@ -70,20 +84,31 @@ export default function Product() {
 						<button className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors">
 							Kosárba rakom
 						</button>
-						<div className="mt-6">
-							<Link
-								to={`/update-product/${product.id}`}
-								className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors"
-							>
-								Szerkesztés
-							</Link>
-							<Link
-								// to={`/delete-product/${product.id}`}
-								className="px-4 py-2 bg-red-950 text-white rounded hover:bg-slate-700 transition-colors"
-							>
-								Törlés
-							</Link>
-						</div>
+						{isAuthenticated && (
+							<div className="mt-6">
+								<Link
+									to={`/update-product/${product.id}`}
+									className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors"
+								>
+									Szerkesztés
+								</Link>
+								<button
+									onClick={() => setShowModal(true)}
+									className="px-4 py-2 bg-red-950 text-white rounded hover:bg-slate-700 transition-colors"
+								>
+									Törlés
+								</button>
+								{showModal && (
+									<div>
+										<ConfirmModal
+											onConfirm={deleteProduct}
+											onCancel={() => setShowModal(false)}
+											message="Biztos törölni akarod a terméket?"
+										/>
+									</div>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

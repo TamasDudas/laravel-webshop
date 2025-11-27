@@ -51,9 +51,22 @@ export default function ProductForm({ productId, initialProduct }) {
 			e.target.value = ''; // Mező kiürítése
 		} else {
 			// Egyéb mezők kezelése
+			let processedValue = type === 'checkbox' ? checked : value;
+
+			// Szám mezők esetén csak számokat engedünk
+			if (name === 'price' || name === 'stock') {
+				// Csak számokat és üres string-et engedünk
+				if (value === '' || /^\d+$/.test(value)) {
+					processedValue = value === '' ? '' : parseInt(value, 10);
+				} else {
+					// Ha nem szám, nem változtatjuk az értéket
+					return;
+				}
+			}
+
 			setFormData((prev) => ({
 				...prev,
-				[name]: type === 'checkbox' ? checked : value,
+				[name]: processedValue,
 			}));
 		}
 	};
@@ -158,26 +171,28 @@ export default function ProductForm({ productId, initialProduct }) {
 			<div>
 				<label className="block text-sm font-medium text-gray-700 mb-2">Ár (Ft)</label>
 				<input
-					type="number"
+					type="text"
 					name="price"
 					value={formData.price}
 					onChange={handleData}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					min="0"
 					placeholder="0"
+					inputMode="numeric"
+					pattern="[0-9]*"
 				/>
 			</div>
 
 			<div>
 				<label className="block text-sm font-medium text-gray-700 mb-2">Készlet</label>
 				<input
-					type="number"
+					type="text"
 					name="stock"
 					value={formData.stock}
 					onChange={handleData}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					min="0"
 					placeholder="0"
+					inputMode="numeric"
+					pattern="[0-9]*"
 				/>
 			</div>
 
