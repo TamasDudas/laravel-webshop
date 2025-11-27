@@ -36,7 +36,7 @@ class CategoryController extends Controller
         try {
             $validated = $request->validate([
                 'parent_id' => 'nullable|integer',
-                'name' => 'required|string|min:5|max:255',
+                'name' => 'required|string|min:2|max:255',
             ]);
 
             $slug = Str::slug($validated['name']);
@@ -48,7 +48,7 @@ class CategoryController extends Controller
             }
 
             $category = Category::create([
-                'parent_id' => $validated['parent_id'],
+                'parent_id' => $validated['parent_id'] ?? null,
                 'name' => $validated['name'],
                 'slug' => $slug
             ]);
@@ -83,14 +83,14 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        // Csak admin módosíthatja a kategóriákat
-        if (!auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Nincs jogosultságod módosítani a kategóriákat'], 403);
-        }
+        // Fejlesztés közben bárki módosíthatja a kategóriákat
+        // if (!auth()->user()->isAdmin()) {
+        //     return response()->json(['error' => 'Nincs jogosultságod módosítani a kategóriákat'], 403);
+        // }
         try {
             $validated = $request->validate([
                 'parent_id' => 'nullable|integer',
-                'name' => 'required|string|min:5|max:255',
+                'name' => 'required|string|min:2|max:255',
             ]);
 
             if (isset($validated['name']) && $validated['name'] !== $category->name) {
@@ -117,14 +117,20 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        // Csak admin törölheti a kategóriákat
-        if (!auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Nincs jogosultságod törölni a kategóriákat'], 403);
-        }
+        // Fejlesztés közben bárki törölheti a kategóriákat
+        // if (!auth()->user()->isAdmin()) {
+        //     return response()->json(['error' => 'Nincs jogosultságod törölni a kategóriákat'], 403);
+        // }
 
         try {
+            $category = Category::find($id);
+
+            if (!$category) {
+                return response()->json(['error' => 'Kategória nem található'], 404);
+            }
+
             $category->delete();
 
             return response()->json(['message' => 'Kategória törölve'], 200);

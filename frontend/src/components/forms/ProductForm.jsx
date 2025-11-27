@@ -74,7 +74,6 @@ export default function ProductForm({ productId, initialProduct }) {
 	// Form beküldésének kezelése
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log('Update submitted for productId:', productId, 'formData:', formData);
 		const formDataToSend = new FormData(); // FormData létrehozása
 
 		// Csak akkor adjuk hozzá a category_id-t, ha nem üres (update esetén opcionális)
@@ -89,7 +88,6 @@ export default function ProductForm({ productId, initialProduct }) {
 		formDataToSend.append('is_active', formData.is_active ? '1' : '0');
 		// Képek hozzáadása a hook-on keresztül
 		appendImagesToFormData(formDataToSend);
-		console.log('FormDataToSend entries:', [...formDataToSend.entries()]);
 
 		if (productId) {
 			// Update

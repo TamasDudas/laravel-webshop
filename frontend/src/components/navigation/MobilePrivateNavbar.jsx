@@ -30,6 +30,11 @@ export default function MobilePrivateNavbar({ user, handleLogout }) {
 								Termék létrehozása
 							</Link>
 						</div>
+						<div className="flex items-center space-x-4">
+							<Link to="/categories" className="px-4 py-2 text-white hover:bg-blue-50 rounded-md">
+								Kategóriák
+							</Link>
+						</div>
 						{/* user info */}
 						<div className="flex items-center space-x-4 py-1">
 							<span>Hello, {user?.name}!</span>

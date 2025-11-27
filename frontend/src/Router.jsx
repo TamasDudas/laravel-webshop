@@ -7,6 +7,9 @@ import CreateProduct from './pages/private/CreateProduct';
 import UpdateProduct from './pages/private/UpdateProduct';
 import Register from './pages/public/Register';
 import Product from './pages/public/Product';
+import Categories from './pages/private/Categories';
+import CreateCategory from './pages/private/CreateCategory';
+import UpdateCategory from './pages/private/UpdateCategory';
 
 const router = createBrowserRouter([
 	{
@@ -46,6 +49,30 @@ const router = createBrowserRouter([
 				element: (
 					<ProtectedRoute>
 						<UpdateProduct />
+					</ProtectedRoute>
+				),
+			},
+			{
+				path: '/categories',
+				element: (
+					<ProtectedRoute>
+						<Categories />
+					</ProtectedRoute>
+				),
+			},
+			{
+				path: '/create-category',
+				element: (
+					<ProtectedRoute>
+						<CreateCategory />
+					</ProtectedRoute>
+				),
+			},
+			{
+				path: '/update-category/:id',
+				element: (
+					<ProtectedRoute>
+						<UpdateCategory />
 					</ProtectedRoute>
 				),
 			},
