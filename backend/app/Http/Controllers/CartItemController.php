@@ -15,9 +15,9 @@ class CartItemController extends Controller
      */
     public function index()
     {
-        if (auth()->check()) {
+        if (auth('sanctum')->check()) {
             // Bejelentkezett user kosara
-            $cartItems = CartItem::where('user_id', auth()->id())->with(['user', 'product'])->get();
+            $cartItems = CartItem::where('user_id', auth('sanctum')->id())->with(['user', 'product'])->get();
         } else {
             // Vendég kosara session alapján
             $sessionId = session()->getId();
@@ -49,20 +49,20 @@ class CartItemController extends Controller
             $productId = $validated['product_id'];
             $quantity = $validated['quantity'];
 
-            if (auth()->check()) {
+            if (auth('sanctum')->check()) {
                 // Bejelentkezett user: keresd meg, van-e már ilyen termék
-                $existingItem = CartItem::where('user_id', auth()->id())
+                $existingItem = CartItem::where('user_id', auth('sanctum')->id())
                     ->where('product_id', $productId)
                     ->first();
 
                 if ($existingItem) {
                     // Növeld a mennyiséget
                     $existingItem->update(['quantity' => $existingItem->quantity + $quantity]);
-                    return new CartItemResource($existingItem->load(['user', 'product']));
+                    return new CartItemResource($existingItem->load(['product']));
                 } else {
                     // Új tétel
                     $cartItem = CartItem::create([
-                        'user_id' => auth()->id(),
+                        'user_id' => auth('sanctum')->id(),
                         'product_id' => $productId,
                         'quantity' => $quantity,
                         'session_id' => null,
@@ -90,7 +90,7 @@ class CartItemController extends Controller
                 }
             }
 
-            return new CartItemResource($cartItem->load(['user', 'product']));
+            return new CartItemResource($cartItem->load(['product']));
 
         } catch (\Exception $e) {
             Log::error('Error with cart item: ' . $e->getMessage());
@@ -108,7 +108,7 @@ class CartItemController extends Controller
             return response()->json(['error' => 'Nincs jogosultságod megnézni ezt a kosár tételt'], 403);
         }
 
-        return new CartItemResource($cartItem->load(['user', 'product']));
+        return new CartItemResource($cartItem->load(['product']));
     }
 
     /**
@@ -136,7 +136,7 @@ class CartItemController extends Controller
         try {
             $cartItem->update($validated);
 
-            return new CartItemResource($cartItem->load(['user', 'product']));
+            return new CartItemResource($cartItem->load(['product']));
 
         } catch (\Exception $e) {
             Log::error('Error updating cart item: ' . $e->getMessage());
@@ -169,8 +169,8 @@ class CartItemController extends Controller
      */
     private function isOwnCartItem(CartItem $cartItem): bool
     {
-        if (auth()->check()) {
-            return $cartItem->user_id === auth()->id();
+        if (auth('sanctum')->check()) {
+            return $cartItem->user_id === auth('sanctum')->id();
         } else {
             return $cartItem->session_id === session()->getId();
         }

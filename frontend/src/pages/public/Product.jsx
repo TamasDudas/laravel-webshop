@@ -4,6 +4,7 @@ import { useProduct } from '../../contexts/ProductContext';
 import { Img } from 'react-image';
 import { useAuth } from '../../contexts/AuthContext';
 import ConfirmModal from '../../components/ConfirmModal';
+import { useCart } from '../../contexts/CartContext';
 
 export default function Product() {
 	const { id } = useParams();
@@ -12,6 +13,8 @@ export default function Product() {
 	const hasFetched = useRef(false);
 	const { isAuthenticated } = useAuth();
 	const navigate = useNavigate();
+	const [quantity, setQuantity] = useState(1);
+	const { addToCart } = useCart();
 
 	useEffect(() => {
 		// Csak akkor töltjük be, ha nincs termék vagy más termék van, és még nem töltöttük be
@@ -37,7 +40,19 @@ export default function Product() {
 	if (!product) {
 		return <p>Nincs termék</p>;
 	}
+	const handleAddToCart = async () => {
+		const result = await addToCart({
+			product_id: product.id,
+			quantity: parseInt(quantity),
+		});
+		if (result.success) {
+			alert('Sikeresen hozzáadva a kosárhoz!');
+		} else {
+			alert(result.error);
+		}
+	};
 
+	//TERMÉK TÖRLÉSE
 	const deleteProduct = async () => {
 		const result = await handleDeleteProduct(id);
 		if (result.success) {
@@ -81,7 +96,10 @@ export default function Product() {
 							{new Intl.NumberFormat('hu-HU', { useGrouping: true }).format(product.price)} Ft
 						</p>
 						<p className="text-sm mb-4">Készlet: {product.stock} db</p>
-						<button className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors">
+						<button
+							className="px-4 py-2 bg-slate-950 text-white rounded hover:bg-slate-700 transition-colors"
+							onClick={handleAddToCart}
+						>
 							Kosárba rakom
 						</button>
 						{isAuthenticated && (
