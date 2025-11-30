@@ -8,9 +8,7 @@ export default function UpdateProduct() {
 	const { product, fetchProduct } = useProduct();
 
 	useEffect(() => {
-		if (id) {
-			fetchProduct(id);
-		}
+		fetchProduct(id);
 	}, [id, fetchProduct]);
 
 	if (!product) {

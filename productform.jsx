@@ -1,83 +1,122 @@
 import React, { useState, useEffect } from 'react';
 import { useCategories } from '../../contexts/CategoriesContext';
-import { useImageHandler } from '../../hooks/useImageHandler';
+
+import { useImageHandler } from '../../hooks/useImageHandler'; // Képkezelő hook importálása
 import { useProduct } from '../../contexts/ProductContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProductForm({ productId, initialProduct }) {
 	const navigate = useNavigate();
 	const { categories } = useCategories();
-	const { handleCreateProduct, handleUpdateProduct } = useProduct();
+	const { handleCreateProduct, handleUpdateProduct, loading } = useProduct();
+
+	// Képkezelés külön hook-kal
 	const { images, addImages, removeImage, clearImages, appendImagesToFormData } = useImageHandler();
 
+	// Form adatok state-je (képek nélkül, azok a hook-ban vannak)
 	const [formData, setFormData] = useState({
 		category_id: '',
 		name: '',
 		description: '',
-		price: '',
-		stock: '',
+		price: 0,
+		stock: 0,
 		is_active: true,
 	});
 
+	// Jelzi, hogy a form betöltődött-e már (hogy ne írja felül a módosításokat)
+	const [formLoaded, setFormLoaded] = useState(false);
+
+	// Ha update mód és initialProduct van, töltse be a form-ot
 	useEffect(() => {
-		if (initialProduct) {
+		if (initialProduct && !formLoaded) {
 			setFormData({
 				category_id: initialProduct.category_id || '',
 				name: initialProduct.name || '',
 				description: initialProduct.description || '',
-				price: initialProduct.price || '',
-				stock: initialProduct.stock || '',
-				is_active: initialProduct.is_active ?? true,
+				price: initialProduct.price || 0,
+				stock: initialProduct.stock || 0,
+				is_active: initialProduct.is_active || true,
 			});
+			setFormLoaded(true);
+			// Képek: update esetén nem töltjük be a meglévő képeket, csak újakat lehet hozzáadni
 		}
-	}, [initialProduct]);
+	}, [initialProduct, formLoaded]);
 
-	const handleChange = (e) => {
+	// Form mezők változásainak kezelése
+	const handleData = (e) => {
 		const { name, value, type, checked, files } = e.target;
-
-		if (type === 'file') {
+		if (type === 'file' && files) {
+			// Képek hozzáadása a hook-on keresztül
 			addImages(files);
-			e.target.value = '';
-		} else if (type === 'checkbox') {
-			setFormData((prev) => ({ ...prev, [name]: checked }));
+			e.target.value = ''; // Mező kiürítése
 		} else {
-			setFormData((prev) => ({ ...prev, [name]: value }));
+			// Egyéb mezők kezelése
+			let processedValue = type === 'checkbox' ? checked : value;
+
+			// Szám mezők esetén csak számokat engedünk
+			if (name === 'price' || name === 'stock') {
+				// Csak számokat és üres string-et engedünk
+				if (value === '' || /^\d+$/.test(value)) {
+					processedValue = value === '' ? '' : parseInt(value, 10);
+				} else {
+					// Ha nem szám, nem változtatjuk az értéket
+					return;
+				}
+			}
+
+			setFormData((prev) => ({
+				...prev,
+				[name]: processedValue,
+			}));
 		}
 	};
 
+	// Form beküldésének kezelése
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		const formDataToSend = new FormData(); // FormData létrehozása
 
-		const formDataToSend = new FormData();
-		if (formData.category_id) formDataToSend.append('category_id', formData.category_id);
+		// Csak akkor adjuk hozzá a category_id-t, ha nem üres (update esetén opcionális)
+		if (formData.category_id) {
+			formDataToSend.append('category_id', formData.category_id);
+		}
+
 		formDataToSend.append('name', formData.name);
 		formDataToSend.append('description', formData.description);
 		formDataToSend.append('price', formData.price);
 		formDataToSend.append('stock', formData.stock);
 		formDataToSend.append('is_active', formData.is_active ? '1' : '0');
+		// Képek hozzáadása a hook-on keresztül
 		appendImagesToFormData(formDataToSend);
 
-		const result = productId
-			? await handleUpdateProduct(productId, formDataToSend)
-			: await handleCreateProduct(formDataToSend);
-
-		if (result.success) {
-			alert(productId ? 'Termék sikeresen frissítve!' : 'Termék sikeresen létrehozva!');
-			if (productId) {
+		if (productId) {
+			// Update
+			const result = await handleUpdateProduct(productId, formDataToSend);
+			if (result.success) {
+				// Először navigálunk, aztán mutatjuk az alertet
 				navigate(`/products/${productId}`);
+				setTimeout(() => alert('Termék sikeresen frissítve!'), 100);
 			} else {
+				alert(result.error);
+			}
+		} else {
+			// Create
+			const result = await handleCreateProduct(formDataToSend);
+			if (result.success) {
+				alert('Termék sikeresen létrehozva!');
+				// Form és képek resetelése
 				setFormData({
 					category_id: '',
 					name: '',
 					description: '',
-					price: '',
-					stock: '',
+					price: 0,
+					stock: 0,
 					is_active: true,
 				});
 				clearImages();
+			} else {
+				alert(result.error);
 			}
-		} else {
-			alert(result.error);
 		}
 	};
 
@@ -92,7 +131,7 @@ export default function ProductForm({ productId, initialProduct }) {
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 					name="category_id"
 					value={formData.category_id}
-					onChange={handleChange}
+					onChange={handleData}
 				>
 					<option value="">Válassz kategóriát</option>
 					{categories.map((category) => (
@@ -109,10 +148,9 @@ export default function ProductForm({ productId, initialProduct }) {
 					type="text"
 					name="name"
 					value={formData.name}
-					onChange={handleChange}
+					onChange={handleData}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 					placeholder="pl. Elegáns karóra"
-					required
 				/>
 			</div>
 
@@ -123,7 +161,7 @@ export default function ProductForm({ productId, initialProduct }) {
 					rows="4"
 					name="description"
 					value={formData.description}
-					onChange={handleChange}
+					onChange={handleData}
 					placeholder="Részletes leírás a termékről"
 				></textarea>
 			</div>
@@ -134,12 +172,11 @@ export default function ProductForm({ productId, initialProduct }) {
 					type="text"
 					name="price"
 					value={formData.price}
-					onChange={handleChange}
+					onChange={handleData}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 					placeholder="0"
 					inputMode="numeric"
 					pattern="[0-9]*"
-					required
 				/>
 			</div>
 
@@ -149,24 +186,24 @@ export default function ProductForm({ productId, initialProduct }) {
 					type="text"
 					name="stock"
 					value={formData.stock}
-					onChange={handleChange}
+					onChange={handleData}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 					placeholder="0"
 					inputMode="numeric"
 					pattern="[0-9]*"
-					required
 				/>
 			</div>
 
-			{productId && initialProduct?.images?.length > 0 && (
+			{/* Meglévő képek megjelenítése update esetén */}
+			{productId && initialProduct && initialProduct.images && initialProduct.images.length > 0 && (
 				<div>
 					<label className="block text-sm font-medium text-gray-700 mb-2">Meglévő képek</label>
 					<div className="grid grid-cols-3 gap-4 mb-4">
-						{initialProduct.images.map((image) => (
+						{initialProduct.images.map((image, index) => (
 							<div key={image.id} className="relative">
 								<img
 									src={`http://localhost:8000/storage/${image.image_path}`}
-									alt="Termék kép"
+									alt={`Kép ${index + 1}`}
 									className="w-full h-30 object-cover rounded border"
 								/>
 								{image.is_primary && (
@@ -179,32 +216,36 @@ export default function ProductForm({ productId, initialProduct }) {
 					</div>
 				</div>
 			)}
-
 			<div>
 				<label className="block text-sm font-medium text-gray-700 mb-2">Új képek hozzáadása</label>
 				<input
 					type="file"
-					multiple
-					accept="image/*"
+					multiple // Több fájl kiválasztásának engedélyezése
+					accept="image/*" // Csak képfájlok elfogadása
 					name="images"
-					onChange={handleChange}
+					onChange={handleData}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
+				{/* Kiválasztott képek előnézete, csak ha van kiválasztott kép */}
 				{images.length > 0 && (
 					<div className="mt-4">
 						<h4 className="text-sm font-medium text-gray-700 mb-2">Kiválasztott új képek:</h4>
 						<div className="grid grid-cols-3 gap-4">
+							{' '}
+							{/* 3 oszlopos rács */}
 							{images.map((image, index) => (
 								<div key={index} className="relative">
+									{/* Kép előnézet: URL.createObjectURL-al blob URL létrehozása a File objektumból */}
 									<img
 										src={URL.createObjectURL(image)}
 										alt={image.name}
 										className="w-full h-30 object-cover rounded border"
 									/>
+									{/* Törlés gomb minden képhez */}
 									<button
 										type="button"
 										onClick={() => removeImage(index)}
-										className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
+										className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-stretch-100% hover:bg-red-600"
 									>
 										×
 									</button>
@@ -220,7 +261,7 @@ export default function ProductForm({ productId, initialProduct }) {
 					type="checkbox"
 					name="is_active"
 					checked={formData.is_active}
-					onChange={handleChange}
+					onChange={handleData}
 					className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
 				/>
 				<label className="ml-2 block text-sm text-gray-900">Aktív</label>
@@ -228,7 +269,7 @@ export default function ProductForm({ productId, initialProduct }) {
 
 			<button
 				type="submit"
-				className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+				className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 min-h-[42px]"
 			>
 				{productId ? 'Termék frissítése' : 'Termék létrehozása'}
 			</button>

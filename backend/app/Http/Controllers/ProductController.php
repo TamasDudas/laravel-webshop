@@ -93,11 +93,11 @@ class ProductController extends Controller
             }
 
             // Slug generálás a név alapján (egyedi)
-            // Ha már létezik ugyanaz a slug, counter-rel bővítjük (pl. "ora" -> "ora-1" -> "ora-2")
+            // Ha már létezik ugyanaz a slug (csak aktív termékeknél), counter-rel bővítjük
             $slug = Str::slug($validated['name']);
             $originalSlug = $slug;
             $counter = 1;
-            while (Product::where('slug', $slug)->exists()) {
+            while (Product::withoutTrashed()->where('slug', $slug)->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
