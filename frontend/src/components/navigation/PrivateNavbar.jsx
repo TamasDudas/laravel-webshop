@@ -34,6 +34,14 @@ export default function PrivateNavbar() {
 					</Link>
 				</div>
 
+				<div>
+					<Link to="/kosar" className="nav-link position-relative m-0">
+						<i className="bi bi-cart3 fw-semibold text-dark"></i>
+
+						<span className=" badge rounded-pill bg-success  py-2">Kosár: </span>
+					</Link>
+				</div>
+
 				{/* user info */}
 				<div className="flex items-center space-x-4 py-1">
 					<span>Hello, {user?.name}!</span>

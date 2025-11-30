@@ -10,6 +10,7 @@ import Product from './pages/public/Product';
 import Categories from './pages/private/Categories';
 import CreateCategory from './pages/private/CreateCategory';
 import UpdateCategory from './pages/private/UpdateCategory';
+import Cart from './pages/public/Cart';
 
 const router = createBrowserRouter([
 	{
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
 			{
 				path: '/products/:id',
 				element: <Product />,
+			},
+			{
+				path: '/kosar',
+				element: <Cart />,
 			},
 
 			//Csak bejelentkezett felhasználó
