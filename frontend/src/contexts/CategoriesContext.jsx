@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { categoryService } from '../services/crudService';
+import api from '../api';
 
 // Hibakezelés kiemelése (DRY principle)
 function extractErrorMessage(error) {
@@ -52,10 +52,10 @@ export default function CategoriesProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			const categories = await categoryService.fetchAll();
-			setCategories(categories);
+			const response = await api.get('/categories');
+			setCategories(response.data.data);
 		} catch (error) {
-			setError('Az API hívás sikertelen');
+			setError(extractErrorMessage(error));
 		} finally {
 			setLoading(false);
 		}
@@ -65,10 +65,10 @@ export default function CategoriesProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			const category = await categoryService.fetchOne(id);
-			setCategory(category);
+			const response = await api.get(`/categories/${id}`);
+			setCategory(response.data.data);
 		} catch (error) {
-			setError(error.response?.data?.message || 'Nem sikerült betölteni a kategóriát');
+			setError(extractErrorMessage(error));
 		} finally {
 			setLoading(false);
 		}
@@ -79,7 +79,8 @@ export default function CategoriesProvider({ children }) {
 			try {
 				setLoading(true);
 				setError(null);
-				const newCategory = await categoryService.create(categoryData);
+				const response = await api.post('/categories', categoryData);
+				const newCategory = response.data.data;
 				// Frissítsük a teljes listát az API-ból, hogy biztosan konzisztens legyen
 				await fetchCategories();
 				return { success: true, data: newCategory };
@@ -99,7 +100,7 @@ export default function CategoriesProvider({ children }) {
 			try {
 				setLoading(true);
 				setError(null);
-				await categoryService.update(id, categoryData);
+				await api.post(`/categories/${id}/update`, categoryData);
 				// Frissítsük a teljes listát az API-ból, hogy biztosan konzisztens legyen
 				await fetchCategories();
 				return { success: true };
@@ -119,7 +120,7 @@ export default function CategoriesProvider({ children }) {
 			try {
 				setLoading(true);
 				setError(null);
-				await categoryService.delete(id);
+				await api.delete(`/categories/${id}`);
 				// Frissítsük a teljes listát az API-ból, hogy biztosan konzisztens legyen
 				await fetchCategories();
 				return { success: true };

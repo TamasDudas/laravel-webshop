@@ -139,7 +139,7 @@ class CartItemController extends Controller
             return new CartItemResource($cartItem->load(['product']));
 
         } catch (\Exception $e) {
-            Log::error('Error updating cart item: ' . $e->getMessage());
+
             return response()->json(['error' => 'Nem sikerült frissíteni a kosár tételt'], 500);
         }
     }
@@ -159,7 +159,7 @@ class CartItemController extends Controller
 
             return response()->json(['message' => 'Kosár tétel törölve'], 200);
         } catch (\Exception $e) {
-            Log::error('Error deleting cart item: ' . $e->getMessage());
+
             return response()->json(['error' => 'Nem sikerült törölni a kosár tételt'], 500);
         }
     }

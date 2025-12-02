@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
-import { productService } from '../services/crudService';
+import api from '../api';
 
 // Hibakezelés kiemelése (DRY principle)
 function extractErrorMessage(error) {
@@ -45,10 +45,10 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			const product = await productService.fetchOne(id);
-			setProduct(product);
+			const response = await api.get(`/products/${id}`);
+			setProduct(response.data.data);
 		} catch (error) {
-			setError(error.response?.data?.message || 'Nem sikerült betölteni a terméket');
+			setError(extractErrorMessage(error));
 		} finally {
 			setLoading(false);
 		}
@@ -58,7 +58,8 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			const newProduct = await productService.create(productData);
+			const response = await api.post('/products', productData);
+			const newProduct = response.data.data;
 			setProduct(newProduct);
 			return { success: true, data: newProduct };
 		} catch (error) {
@@ -74,7 +75,8 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			const updatedProduct = await productService.update(id, productData);
+			const response = await api.post(`/products/${id}/update`, productData);
+			const updatedProduct = response.data.data;
 			setProduct(updatedProduct);
 			return { success: true, data: updatedProduct };
 		} catch (error) {
@@ -90,7 +92,7 @@ export default function ProductProvider({ children }) {
 		try {
 			setLoading(true);
 			setError(null);
-			await productService.delete(id);
+			await api.delete(`/products/${id}`);
 			setProduct(null); // Sikeres törlés után ürítjük a state-et
 			return { success: true };
 		} catch (error) {
