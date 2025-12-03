@@ -1,9 +1,11 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../api';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext({
 	cartItems: [],
 	addTocart: () => {},
+	fetchCartItems: () => {},
 	removeFromCart: () => {},
 	updateQuantity: () => {},
 	getTotalItems: () => {},
@@ -22,18 +24,42 @@ export const useCart = () => {
 };
 
 export default function CartProvider({ children }) {
+	const { user } = useAuth();
 	const [cartItems, setCartItems] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
+
+	const fetchCartItems = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+			const response = await api.get('/cart-items');
+			setCartItems(response.data.data || []);
+		} catch (error) {
+			setError(error.response?.data?.message || 'Nem sikerült betölteni a kosarat');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (user) {
+			fetchCartItems();
+		} else {
+			setCartItems([]);
+		}
+	}, [user]);
 
 	const addToCart = async (cartData) => {
 		try {
 			setLoading(true);
 			setError(null);
 			const response = await api.post('/cart-items', cartData);
-			const newCartItem = response.data;
+			const newCartItem = response.data.data;
+
 			setCartItems((prevItems) => {
-				const existingIndex = prevItems.findIndex((item) => item.product_id === newCartItem.product_id);
+				const existingIndex = prevItems.findIndex((item) => item.product?.id === newCartItem.product?.id);
+
 				if (existingIndex >= 0) {
 					// Frissítjük a mennyiséget
 					const updatedItems = [...prevItems];
@@ -41,7 +67,8 @@ export default function CartProvider({ children }) {
 					return updatedItems;
 				} else {
 					// Hozzáadjuk az új elemet
-					return [...prevItems, newCartItem];
+					const newItems = [...prevItems, newCartItem];
+					return newItems;
 				}
 			});
 			return { success: true };
@@ -55,7 +82,13 @@ export default function CartProvider({ children }) {
 
 	const removeFromCart = async (product_id) => {};
 	const updateQuantity = async () => {};
-	const getTotalItems = async () => {};
+	function getTotalItems() {
+		const total = cartItems.reduce((sum, item) => {
+			return sum + item.quantity;
+		}, 0);
+
+		return total;
+	}
 	const getTotalPrice = async () => {};
 	const clearCart = async () => {};
 
@@ -64,6 +97,7 @@ export default function CartProvider({ children }) {
 			value={{
 				addToCart,
 				cartItems,
+				fetchCartItems,
 				removeFromCart,
 				updateQuantity,
 				getTotalItems,

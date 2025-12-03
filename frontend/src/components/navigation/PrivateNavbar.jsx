@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../contexts/CartContext';
 import MobilePrivateNavbar from './MobilePrivateNavbar';
 
 export default function PrivateNavbar() {
 	const { user, logout } = useAuth();
+	const { getTotalItems } = useCart();
 
 	const handleLogout = () => {
 		logout();
@@ -38,7 +40,7 @@ export default function PrivateNavbar() {
 					<Link to="/kosar" className="nav-link position-relative m-0">
 						<i className="bi bi-cart3 fw-semibold text-dark"></i>
 
-						<span className=" badge rounded-pill bg-success  py-2">Kosár: </span>
+						<span className=" badge rounded-pill bg-success  py-2">Kosár: {getTotalItems()}</span>
 					</Link>
 				</div>
 
