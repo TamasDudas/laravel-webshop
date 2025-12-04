@@ -2,10 +2,15 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import MobilePrivateNavbar from './MobilePrivateNavbar';
+import { useEffect } from 'react';
 
 export default function PrivateNavbar() {
 	const { user, logout } = useAuth();
-	const { getTotalItems } = useCart();
+	const { getTotalItems, fetchCartItems } = useCart();
+
+	useEffect(() => {
+		fetchCartItems();
+	}, []);
 
 	const handleLogout = () => {
 		logout();

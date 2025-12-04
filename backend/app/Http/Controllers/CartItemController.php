@@ -17,7 +17,7 @@ class CartItemController extends Controller
     {
         if (auth('sanctum')->check()) {
             // Bejelentkezett user kosara
-            $cartItems = CartItem::where('user_id', auth('sanctum')->id())->with(['user', 'product'])->get();
+            $cartItems = CartItem::where('user_id', auth('sanctum')->id())->with(['product'])->get();
         } else {
             // Vendég kosara session alapján
             $sessionId = session()->getId();

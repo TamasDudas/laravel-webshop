@@ -80,8 +80,6 @@ export default function CartProvider({ children }) {
 		}
 	};
 
-	const removeFromCart = async (product_id) => {};
-	const updateQuantity = async () => {};
 	function getTotalItems() {
 		const total = cartItems.reduce((sum, item) => {
 			return sum + item.quantity;
@@ -89,6 +87,9 @@ export default function CartProvider({ children }) {
 
 		return total;
 	}
+
+	const removeFromCart = async (product_id) => {};
+	const updateQuantity = async () => {};
 	const getTotalPrice = async () => {};
 	const clearCart = async () => {};
 
