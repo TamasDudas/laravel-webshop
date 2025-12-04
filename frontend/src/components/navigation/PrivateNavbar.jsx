@@ -8,10 +8,6 @@ export default function PrivateNavbar() {
 	const { user, logout } = useAuth();
 	const { getTotalItems, fetchCartItems } = useCart();
 
-	useEffect(() => {
-		fetchCartItems();
-	}, []);
-
 	const handleLogout = () => {
 		logout();
 	};

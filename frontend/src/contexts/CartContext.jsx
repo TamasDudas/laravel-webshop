@@ -37,6 +37,7 @@ export default function CartProvider({ children }) {
 			setCartItems(response.data.data || []);
 		} catch (error) {
 			setError(error.response?.data?.message || 'Nem sikerült betölteni a kosarat');
+			setCartItems([]);
 		} finally {
 			setLoading(false);
 		}

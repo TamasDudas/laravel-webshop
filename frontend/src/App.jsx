@@ -11,13 +11,13 @@ function App() {
 		<div className="min-h-screen">
 			<CategoriesProvider>
 				<ProductsProvider>
-					<CartProvider>
-						<ProductProvider>
-							<AuthProvider>
+					<ProductProvider>
+						<AuthProvider>
+							<CartProvider>
 								<RouterProvider router={router} />
-							</AuthProvider>
-						</ProductProvider>
-					</CartProvider>
+							</CartProvider>
+						</AuthProvider>
+					</ProductProvider>
 				</ProductsProvider>
 			</CategoriesProvider>
 		</div>

@@ -26,6 +26,15 @@ export default function Cart() {
 							<th className="text-slate-200">Műveletek</th>
 						</tr>
 					</thead>
+					<tbody>
+						{cartItems.map((cartItem, index) => (
+							<tr key={index}>
+								<td className="text-slate-300">{cartItem.product.name}</td>
+								<td className="text-slate-300">{cartItem.product.price}</td>
+								<td className="text-slate-300">{cartItem.quantity}</td>
+							</tr>
+						))}
+					</tbody>
 				</table>
 			</div>
 		</div>
