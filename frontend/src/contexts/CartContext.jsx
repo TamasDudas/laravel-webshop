@@ -89,9 +89,26 @@ export default function CartProvider({ children }) {
 		return total;
 	}
 
-	const removeFromCart = async (product_id) => {};
+	//Ár
+	function getTotalPrice() {
+		const total = cartItems.reduce((sum, item) => {
+			const price = item.product?.price || 0;
+			const quantity = item.quantity || 0;
+			return sum + price * quantity;
+		}, 0);
+
+		return total;
+	}
+
+	//Tölés a kosárból
+	const removeFromCart = async (product_id) => {
+		const newCartItems = cartItems.filter((cartItem) => cartItem.product.id !== product_id);
+		setCartItems(newCartItems);
+	};
+
+	//Termék mennyiség update
 	const updateQuantity = async () => {};
-	const getTotalPrice = async () => {};
+
 	const clearCart = async () => {};
 
 	return (

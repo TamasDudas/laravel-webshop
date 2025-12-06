@@ -17,11 +17,11 @@ class CartItemController extends Controller
     {
         if (auth('sanctum')->check()) {
             // Bejelentkezett user kosara
-            $cartItems = CartItem::where('user_id', auth('sanctum')->id())->with(['product'])->get();
+            $cartItems = CartItem::where('user_id', auth('sanctum')->id())->with(['product.images'])->get();
         } else {
             // Vendég kosara session alapján
             $sessionId = session()->getId();
-            $cartItems = CartItem::where('session_id', $sessionId)->with(['product'])->get();
+            $cartItems = CartItem::where('session_id', $sessionId)->with(['product.images'])->get();
         }
 
         return CartItemResource::collection($cartItems);
