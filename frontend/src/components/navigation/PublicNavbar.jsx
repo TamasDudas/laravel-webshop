@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MobilePublicNavbar from './MobilePublicNavbar';
+import { useCart } from '../../contexts/CartContext';
 
 export default function PublicNavbar() {
+	const { getTotalItems } = useCart();
 	return (
 		<>
 			<nav className="hidden md:flex max-w-4xl w-full mx-auto p-4 justify-between items-center">
@@ -31,7 +33,9 @@ export default function PublicNavbar() {
 					<Link to="/kosar" className="nav-link position-relative m-0">
 						<i className="bi bi-cart3 fw-semibold text-dark"></i>
 
-						<span className=" badge rounded-pill bg-success  py-2">Kosár: </span>
+						<span className=" badge rounded-pill bg-success  py-2 text-slate-200">
+							Kosár: {getTotalItems()}
+						</span>
 					</Link>
 				</div>
 			</nav>

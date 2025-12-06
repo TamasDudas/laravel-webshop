@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 
 export default function PrivateNavbar() {
 	const { user, logout } = useAuth();
-	const { getTotalItems, fetchCartItems } = useCart();
+	const { getTotalItems } = useCart();
 
 	const handleLogout = () => {
 		logout();
