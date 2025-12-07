@@ -10,6 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\WishListController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\ShippingMethodController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,13 +54,17 @@ Route::middleware('auth:sanctum')->delete('reviews/{review}', [ReviewController:
 
 // Order routes
 Route::apiResource('orders', OrderController::class)->except(['store', 'update', 'destroy']);
-Route::middleware('auth:sanctum')->post('orders', [OrderController::class, 'store']);
+Route::post('orders', [OrderController::class, 'store']);
 
 // Cart routes
 Route::apiResource('cart-items', CartItemController::class);
+Route::delete('cart/clear', [CartItemController::class, 'clear']);
 
 // Wishlist routes
 Route::middleware('auth:sanctum')->apiResource('wish-lists', WishListController::class);
 
 // Address routes
 Route::middleware('auth:sanctum')->apiResource('addresses', AddressController::class);
+
+// Shipping method routes
+Route::apiResource('shipping-methods', ShippingMethodController::class)->only(['index', 'show']);

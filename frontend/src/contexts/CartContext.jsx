@@ -216,7 +216,25 @@ export default function CartProvider({ children }) {
 		}
 	};
 
-	const clearCart = async () => {};
+	const clearCart = async () => {
+		if (user) {
+			// Bejelentkezett felhasználó esetében backend
+			try {
+				setLoading(true);
+				setError(null);
+				await api.delete('/cart/clear');
+				setCartItems([]);
+			} catch (error) {
+				setError(error.response?.data?.message || 'Nem sikerült üríteni a kosarat');
+			} finally {
+				setLoading(false);
+			}
+		} else {
+			// Vendég felhasználó esetében localStorage
+			setCartItems([]);
+			localStorage.removeItem('cartItems');
+		}
+	};
 
 	return (
 		<CartContext.Provider

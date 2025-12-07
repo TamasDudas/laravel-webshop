@@ -69,7 +69,7 @@ class OrderController extends Controller
                 'guest_email' => $validated['guest_email'],
                 'guest_name' => $validated['guest_name'],
                 'guest_phone' => $validated['guest_phone'],
-                'session_id' => $validated['session_id'],
+                'session_id' => $validated['session_id'] ?? null,
                 'shipping_address' => $validated['shipping_address'],
                 'billing_address' => $validated['billing_address'],
             ]);

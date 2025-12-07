@@ -116,7 +116,7 @@ export default function Cart() {
 							Vásárlás folytatása
 						</button>
 						<button
-							onClick={() => navigate('/checkout')}
+							onClick={() => navigate('/order')}
 							className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
 						>
 							Pénztár

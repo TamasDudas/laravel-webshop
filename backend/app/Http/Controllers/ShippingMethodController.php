@@ -12,7 +12,10 @@ class ShippingMethodController extends Controller
      */
     public function index()
     {
-        //
+        $shippingMethods = ShippingMethod::active()->get();
+        return response()->json([
+            'data' => $shippingMethods
+        ]);
     }
 
     /**
@@ -36,7 +39,9 @@ class ShippingMethodController extends Controller
      */
     public function show(ShippingMethod $shippingMethod)
     {
-        //
+        return response()->json([
+            'data' => $shippingMethod
+        ]);
     }
 
     /**

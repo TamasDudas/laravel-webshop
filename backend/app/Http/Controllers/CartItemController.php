@@ -165,6 +165,26 @@ class CartItemController extends Controller
     }
 
     /**
+     * Clear all cart items for the current user/session
+     */
+    public function clear()
+    {
+        try {
+            if (auth('sanctum')->check()) {
+                // Bejelentkezett felhasználó esetében
+                CartItem::where('user_id', auth('sanctum')->id())->delete();
+            } else {
+                // Vendég kosara session alapján
+                CartItem::where('session_id', session()->getId())->delete();
+            }
+
+            return response()->json(['message' => 'Kosár ürítve'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Nem sikerült üríteni a kosarat'], 500);
+        }
+    }
+
+    /**
      * Segédmetódus: ellenőrzi, hogy a kosár tétel saját-e (user vagy session alapján)
      */
     private function isOwnCartItem(CartItem $cartItem): bool
