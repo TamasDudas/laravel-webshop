@@ -26,8 +26,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Authentication routes
-Route::post('/register', [AuthController::class, 'register']);
+// Test route for session
+Route::get('/session-id', function () {
+    return response()->json(['session_id' => session()->getId()]);
+});
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
