@@ -44,6 +44,7 @@ export default function Product() {
 		const result = await addToCart({
 			product_id: product.id,
 			quantity: parseInt(quantity),
+			product: product,
 		});
 		if (result.success) {
 			alert('Sikeresen hozzáadva a kosárhoz!');

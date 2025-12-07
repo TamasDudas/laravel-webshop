@@ -23,7 +23,7 @@ class ProductResource extends JsonResource
             'price' => $this->price,
             'stock' => $this->stock,
             'is_active' => $this->is_active,
-            'images' => $this->whenLoaded('images', fn () => ProductImageResource::collection($this->images)),
+            'images' => ProductImageResource::collection($this->whenLoaded('images') ?: $this->images),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

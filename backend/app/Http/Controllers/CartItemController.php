@@ -58,7 +58,7 @@ class CartItemController extends Controller
                 if ($existingItem) {
                     // Növeld a mennyiséget
                     $existingItem->update(['quantity' => $existingItem->quantity + $quantity]);
-                    return new CartItemResource($existingItem->load(['product']));
+                    return new CartItemResource($existingItem->load(['product.images']));
                 } else {
                     // Új tétel
                     $cartItem = CartItem::create([
@@ -78,7 +78,7 @@ class CartItemController extends Controller
                 if ($existingItem) {
                     // Növeld a mennyiséget
                     $existingItem->update(['quantity' => $existingItem->quantity + $quantity]);
-                    return new CartItemResource($existingItem->load(['product']));
+                    return new CartItemResource($existingItem->load(['product.images']));
                 } else {
                     // Új tétel
                     $cartItem = CartItem::create([
@@ -90,7 +90,7 @@ class CartItemController extends Controller
                 }
             }
 
-            return new CartItemResource($cartItem->load(['product']));
+            return new CartItemResource($cartItem->load(['product.images']));
 
         } catch (\Exception $e) {
             Log::error('Error with cart item: ' . $e->getMessage());
@@ -108,7 +108,7 @@ class CartItemController extends Controller
             return response()->json(['error' => 'Nincs jogosultságod megnézni ezt a kosár tételt'], 403);
         }
 
-        return new CartItemResource($cartItem->load(['product']));
+        return new CartItemResource($cartItem->load(['product.images']));
     }
 
     /**
@@ -136,7 +136,7 @@ class CartItemController extends Controller
         try {
             $cartItem->update($validated);
 
-            return new CartItemResource($cartItem->load(['product']));
+            return new CartItemResource($cartItem->load(['product.images']));
 
         } catch (\Exception $e) {
 

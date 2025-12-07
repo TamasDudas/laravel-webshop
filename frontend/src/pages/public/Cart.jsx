@@ -15,7 +15,7 @@ export default function Cart() {
 						<div className="text-6xl mb-4">🛒</div>
 						<p className="text-slate-300 text-lg mb-6">A kosár üres</p>
 						<button
-							onClick={() => navigate('/products')}
+							onClick={() => navigate('/')}
 							className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
 						>
 							Vásárlás folytatása
@@ -76,9 +76,7 @@ export default function Cart() {
 
 								{/* Ár */}
 								<div className="text-right">
-									<p className="text-xl font-bold text-slate-200">
-										{cartItem.total_price || cartItem.product.price * cartItem.quantity} Ft
-									</p>
+									<p className="text-xl font-bold text-slate-200">{cartItem.product.price * cartItem.quantity} Ft</p>
 									<p className="text-slate-400 text-sm">
 										({cartItem.quantity} × {cartItem.product.price} Ft)
 									</p>
