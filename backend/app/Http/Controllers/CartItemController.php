@@ -130,7 +130,7 @@ class CartItemController extends Controller
         }
 
         $validated = $request->validate([
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|integer',
         ]);
 
         try {

@@ -61,7 +61,6 @@ export default function Cart() {
 									<button
 										onClick={() => updateQuantity(cartItem.product.id, cartItem.quantity - 1)}
 										className="w-8 h-8 bg-gray-700 hover:bg-gray-600 text-slate-200 rounded-full flex items-center justify-center transition-colors"
-										disabled={cartItem.quantity <= 1}
 									>
 										−
 									</button>
